@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoriNotes | Ty</title>
+    <link rel="icon" type="image/png" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
+      
+    <style>
+        :root {
+            --primary:  #007AFF;
+            --primary-dark: #0056b3;
+            --success: #22c55e;
+            --error: #ef4444;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --cork: #404040;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Parkinsans", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--background);
+            
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 0.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .scenes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            
+        }
+
+        .scene-item {
+            padding: 0.75rem;
+            background: var(--background);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .scene-item:hover {
+            background: var(--border);
+        }
+
+        .scene-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .corkboard {
+            flex: 1;
+            background: var(--cork);
+            background-image: 
+                radial-gradient(rgba(0,0,0,.1) 15%, transparent 16%),
+                radial-gradient(rgba(0,0,0,.1) 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            overflow: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .scene-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+            min-height: 100%;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+        }
+
+        .board-card {
+            background: #ffffff;
+            border-radius: 3px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            transform: rotate(-1deg);
+            cursor: move;
+            max-height: 500px;
+            margin-bottom: 2rem;
+        }
+
+        .board-card:nth-child(even) {
+            transform: rotate(1deg);
+            background: #fffdf8;
+        }
+
+        .board-card:hover {
+            transform: scale(1.02) rotate(0deg);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .board-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #f44336;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .board-card.active {
+            transform: scale(1.05) rotate(0deg);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        .card-header {
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .scene-number {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .card-content {
+            padding: 0.75rem;
+        }
+
+        .image-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scene-textarea {
+            width: 100%;
+            min-height: 100px;
+            border: none;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            padding: 0.5rem;
+            background: transparent;
+        }
+
+        .scene-textarea:focus {
+            outline: none;
+        }
+
+        .zoom-controls {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+            background: var(--card);
+            padding: 0.5rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-right: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            margin-right: 32px;
+        }
+
+        .notification.success { background: var(--success); }
+        .notification.error { background: var(--error); }
+        .notification.visible { opacity: 1; }
+
+        .corkboard::-webkit-scrollbar {
+          width: 12px;
+          height: 12px;
+      }
+      
+      .corkboard::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+      }
+      
+      .corkboard::-webkit-scrollbar-thumb {
+          background: var(--primary);
+          border-radius: 6px;
+          border: 3px solid rgba(0, 0, 0, 0.1);
+      }
+      
+      .corkboard::-webkit-scrollbar-thumb:hover {
+          background: var(--primary-dark);
+      }
+      
+      .corkboard::-webkit-scrollbar-corner {
+          background: transparent;
+      }
+      
+      .scenes-list::-webkit-scrollbar {
+          width: 8px;
+      }
+      
+      .scenes-list::-webkit-scrollbar-track {
+          background: var(--background);
+          border-radius: 4px;
+      }
+      
+      .scenes-list::-webkit-scrollbar-thumb {
+          background: var(--border);
+          border-radius: 4px;
+      }
+      
+      .scenes-list::-webkit-scrollbar-thumb:hover {
+          background: var(--text-secondary);
+      }
+      
+      .scene-textarea::-webkit-scrollbar {
+          width: 6px;
+      }
+      
+      .scene-textarea::-webkit-scrollbar-track {
+          background: transparent;
+      }
+      
+      .scene-textarea::-webkit-scrollbar-thumb {
+          background: var(--border);
+          border-radius: 3px;
+      }
+      
+      .scene-textarea::-webkit-scrollbar-thumb:hover {
+          background: var(--text-secondary);
+      }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                bottom: 0;
+                transition: transform 0.3s ease;
+                z-index: 50;
+            }
+
+            .sidebar.visible {
+                transform: translateX(250px);
+            }
+
+            .image-container {
+              max-height: 300px;
+            }
+
+            .board-card {
+              max-height: 600px;
+            }
+
+            .scene-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .zoom-controls {
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
+
+        .corkboard.panning {
+            cursor: grabbing;
+        }
+
+        .corkboard.panning .board-card {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">StoriNotes</div>
+        <div class="toolbar">
+            <button class="btn btn-secondary" id="addSceneBtn">Add Scene</button>
+            <button class="btn" id="saveProjectBtn">Save Project</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar" id="sidebar">
+            <div class="scenes-list" id="scenesList"></div>
+        </div>
+
+        <div class="corkboard" id="corkboard">
+            <div class="scene-container" id="sceneContainer"></div>
+        </div>
+    </div>
+
+    <div class="zoom-controls">
+        <button class="btn btn-secondary" id="zoomOutBtn">-</button>
+        <button class="btn btn-secondary" id="resetZoomBtn">Reset</button>
+        <button class="btn btn-secondary" id="zoomInBtn">+</button>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+      class StoryBoard {
+          constructor() {
+              this.scenes = [];
+              this.currentSceneIndex = 0;
+              this.scale = 1;
+              this.isDragging = false;
+              this.startX = 0;
+              this.startY = 0;
+              this.scrollLeft = 0;
+              this.scrollTop = 0;
+              this.setupEventListeners();
+              this.loadFromLocalStorage();
+          }
+
+          setupEventListeners() {
+              document.getElementById('addSceneBtn').addEventListener('click', () => this.addScene());
+              document.getElementById('saveProjectBtn').addEventListener('click', () => this.saveProject());
+              document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
+              document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
+              document.getElementById('resetZoomBtn').addEventListener('click', () => this.resetZoom());
+              
+              const corkboard = document.getElementById('corkboard');
+              corkboard.addEventListener('mousedown', (e) => this.startDragging(e));
+              corkboard.addEventListener('mousemove', (e) => this.drag(e));
+              corkboard.addEventListener('mouseup', () => this.stopDragging());
+              corkboard.addEventListener('mouseleave', () => this.stopDragging());
+              
+              window.addEventListener('resize', () => this.updateLayout());
+          }
+
+          startDragging(e) {
+              if (e.target.id === 'corkboard' || e.target.id === 'sceneContainer') {
+                  this.isDragging = true;
+                  const corkboard = document.getElementById('corkboard');
+                  corkboard.classList.add('panning');
+                  this.startX = e.pageX - corkboard.offsetLeft;
+                  this.startY = e.pageY - corkboard.offsetTop;
+                  this.scrollLeft = corkboard.scrollLeft;
+                  this.scrollTop = corkboard.scrollTop;
+              }
+          }
+
+          drag(e) {
+              if (!this.isDragging) return;
+              e.preventDefault();
+              const corkboard = document.getElementById('corkboard');
+              const x = e.pageX - corkboard.offsetLeft;
+              const y = e.pageY - corkboard.offsetTop;
+              const walkX = (x - this.startX) * 2;
+              const walkY = (y - this.startY) * 2;
+              corkboard.scrollLeft = this.scrollLeft - walkX;
+              corkboard.scrollTop = this.scrollTop - walkY;
+          }
+
+          stopDragging() {
+              this.isDragging = false;
+              document.getElementById('corkboard').classList.remove('panning');
+          }
+
+          zoomIn() {
+              this.scale = Math.min(2, this.scale + 0.1);
+              this.updateZoom();
+          }
+
+          zoomOut() {
+              this.scale = Math.max(0.5, this.scale - 0.1);
+              this.updateZoom();
+          }
+
+          resetZoom() {
+              this.scale = 1;
+              this.updateZoom();
+          }
+
+          updateZoom() {
+              const container = document.getElementById('sceneContainer');
+              container.style.transform = `scale(${this.scale})`;
+          }
+
+          updateLayout() {
+              this.renderScenes();
+              this.updateZoom();
+          }
+
+          addScene() {
+              const scene = {
+                  id: Date.now(),
+                  title: `Scene ${this.scenes.length + 1}`,
+                  content: '',
+                  image: null
+              };
+              this.scenes.push(scene);
+              this.currentSceneIndex = this.scenes.length - 1;
+              this.renderAll();
+              this.showNotification('Scene added', 'success');
+          }
+
+          renderAll() {
+              this.renderScenesList();
+              this.renderScenes();
+              this.saveToLocalStorage();
+          }
+
+          renderScenesList() {
+              const scenesList = document.getElementById('scenesList');
+              scenesList.innerHTML = this.scenes.map((scene, index) => `
+                  <div class="scene-item ${index === this.currentSceneIndex ? 'active' : ''}"
+                       onclick="storyBoard.selectScene(${index})">
+                      ${scene.title}
+                  </div>
+              `).join('');
+          }
+
+          renderScenes() {
+              const container = document.getElementById('sceneContainer');
+              if (this.scenes.length === 0) {
+                  container.innerHTML = `
+                      <div class="board-card">
+                          <div class="card-content">
+                              <p>No scenes yet. Click "Add Scene" to get started.</p>
+                          </div>
+                      </div>
+                  `;
+                  return;
+              }
+
+              container.innerHTML = this.scenes.map((scene, index) => `
+                  <div class="board-card ${index === this.currentSceneIndex ? 'active' : ''}"
+                       onclick="storyBoard.selectScene(${index})"
+                       draggable="true"
+                       ondragstart="storyBoard.dragStart(event, ${index})"
+                       ondragover="storyBoard.dragOver(event)"
+                       ondrop="storyBoard.drop(event, ${index})">
+                      <div class="card-header">
+                          <div style="display: flex; align-items: center;">
+                              <span class="scene-number">#${index + 1}</span>
+                              <input type="text" 
+                                     value="${scene.title}"
+                                     onchange="storyBoard.updateSceneTitle(${index}, this.value)"
+                                     onclick="event.stopPropagation()"
+                                     style="border:none;background:transparent;font-weight:500;">
+                          </div>
+                          <button class="btn btn-secondary" 
+                                  onclick="storyBoard.deleteScene(${index});event.stopPropagation()">
+                              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="m376-300 104-104 104 104 56-56-104-104 104-104-56-56-104 104-104-104-56 56 104 104-104 104 56 56Zm-96 180q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520Zm-400 0v520-520Z"/></svg>
+                          </button>
+                      </div>
+                      <div class="card-content">
+                          <div class="image-container" 
+                               onclick="storyBoard.uploadImage(${index});event.stopPropagation()">
+                              ${scene.image ? `<img src="${scene.image}" alt="Scene ${index + 1}">` 
+                                          : 'Click to add image'}
+                          </div>
+                          <textarea class="scene-textarea" 
+                                    onclick="event.stopPropagation()"
+                                    onchange="storyBoard.updateSceneContent(${index}, this.value)"
+                                    placeholder="Enter scene description...">${scene.content || ''}</textarea>
+                      </div>
+                  </div>
+              `).join('');
+          }
+
+          selectScene(index) {
+              this.currentSceneIndex = index;
+              this.renderAll();
+              const card = document.querySelectorAll('.board-card')[index];
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+
+          updateSceneTitle(index, title) {
+              this.scenes[index].title = title;
+              this.renderAll();
+          }
+
+          updateSceneContent(index, content) {
+              this.scenes[index].content = content;
+              this.saveToLocalStorage();
+          }
+
+          deleteScene(index) {
+              this.scenes.splice(index, 1);
+              this.currentSceneIndex = Math.max(0, Math.min(this.currentSceneIndex, this.scenes.length - 1));
+              this.renderAll();
+              this.showNotification('Scene deleted', 'success');
+          }
+
+          dragStart(e, index) {
+              e.dataTransfer.setData('text/plain', index);
+          }
+
+          dragOver(e) {
+              e.preventDefault();
+          }
+
+          drop(e, targetIndex) {
+              e.preventDefault();
+              const sourceIndex = parseInt(e.dataTransfer.getData('text/plain'));
+              if (sourceIndex !== targetIndex) {
+                  const scenes = [...this.scenes];
+                  const [removed] = scenes.splice(sourceIndex, 1);
+                  scenes.splice(targetIndex, 0, removed);
+                  this.scenes = scenes;
+                  this.currentSceneIndex = targetIndex;
+                  this.renderAll();
+              }
+          }
+
+          uploadImage(index) {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                          this.scenes[index].image = e.target.result;
+                          this.renderAll();
+                      };
+                      reader.readAsDataURL(file);
+                  }
+              };
+              input.click();
+          }
+
+          saveProject() {
+              this.saveToLocalStorage();
+              this.showNotification('Project saved', 'success');
+          }
+
+          saveToLocalStorage() {
+              localStorage.setItem('storyboardScenes', JSON.stringify({
+                  scenes: this.scenes,
+                  scale: this.scale
+              }));
+          }
+
+          loadFromLocalStorage() {
+              const saved = localStorage.getItem('storyboardScenes');
+              if (saved) {
+                  const data = JSON.parse(saved);
+                  this.scenes = data.scenes || [];
+                  this.scale = data.scale || 1;
+                  this.renderAll();
+                  this.updateZoom();
+              }
+          }
+
+          showNotification(message, type) {
+              const notification = document.getElementById('notification');
+              notification.textContent = message;
+              notification.className = `notification ${type}`;
+              notification.classList.add('visible');
+              setTimeout(() => notification.classList.remove('visible'), 3000);
+          }
+      }
+
+      const storyBoard = new StoryBoard();
+  </script>
+</body>
+</html>
